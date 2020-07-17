@@ -1,0 +1,11 @@
+tally-graphql.com, localhost:8080 {
+  tls /root/.caddy/tally-graphql.com.pem /root/.caddy/tally-graphql.com-key.pem
+
+  reverse_proxy tally-graphql:8888
+}
+
+tally-web.com, localhost:9090 {
+  tls /root/.caddy/tally-web.com.pem /root/.caddy/tally-web.com-key.pem
+
+  reverse_proxy tally-web:9999
+}

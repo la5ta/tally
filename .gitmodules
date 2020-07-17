@@ -1,0 +1,3 @@
+[submodule "tally-web"]
+	path = tally-web
+	url = git@github.com:la5ta/tally-web.git

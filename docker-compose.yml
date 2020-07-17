@@ -1,0 +1,65 @@
+version: '3'
+
+services:
+  # DB
+  postgres:
+    image: postgres:13
+    restart: always
+    volumes:
+    - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgrespassword
+    ## disable logging
+    logging:
+        driver: none
+  tally-graphql:
+    image: hasura/graphql-engine:v1.2.2
+    depends_on:
+    - postgres
+    restart: always
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/postgres
+      HASURA_GRAPHQL_ENABLE_CONSOLE: 'true' # set to 'false' to disable console
+      HASURA_GRAPHQL_DEV_MODE: 'true' # dev mode
+      HASURA_GRAPHQL_SERVER_PORT: 8888
+      ## uncomment next line to set an admin secret
+      # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
+    command:
+    - graphql-engine
+    - serve
+    ## disable logging
+    logging:
+      driver: none
+
+  # Front website
+  tally-web:
+    environment:
+      - NODE_ENV=development
+      - PORT=9999
+      - NEXT_PUBLIC_RELAY_ENDPOINT=http://tally-graphql:8888/v1/graphql
+    depends_on:
+    - tally-graphql
+    # Volumes only for dev, since itll be compiled for prod
+    volumes:
+      - ./tally-web/:/webroot/default
+    build: ./tally-web
+    command: yarn dev
+
+  # Proxy server
+  caddy:
+    image: caddy/caddy
+    depends_on:
+    - postgres
+    - tally-graphql
+    # - web
+    restart: always
+    ports:
+    - 8080:8080
+    - 9090:9090
+    - 443:443
+    - 80:80
+    volumes:
+    - ./Caddyfile:/etc/caddy/Caddyfile
+    - ./certs:/root/.caddy
+volumes:
+  db_data:
