@@ -1,0 +1,15 @@
+- table:
+    schema: public
+    name: carts
+- table:
+    schema: public
+    name: order_item
+- table:
+    schema: public
+    name: orders
+- table:
+    schema: public
+    name: products
+- table:
+    schema: public
+    name: users
