@@ -11,8 +11,8 @@ services:
       POSTGRES_PASSWORD: postgrespassword
     build: ./postgres
     ## disable logging
-    logging:
-        driver: none
+    # logging:
+    #     driver: none
   tally-graphql:
     image: hasura/graphql-engine:v1.3.0-beta.4.cli-migrations-v2
     depends_on:
@@ -36,22 +36,23 @@ services:
     ports:
       - 8888:8888
     ## disable logging
-    logging:
-      driver: none
+    # logging:
+    #   driver: none
 
   # Front website
-  # tally-web:
-  #   environment:
-  #     - NODE_ENV=development
-  #     - PORT=9999
-  #     - NEXT_PUBLIC_RELAY_ENDPOINT=http://tally-graphql:8888/v1/graphql
-  #   depends_on:
-  #   - tally-graphql
-  #   # Volumes only for dev, since itll be compiled for prod
-  #   volumes:
-  #     - ./tally-web/:/webroot/default
-  #   build: ./tally-web
-  #   command: yarn dev
+  tally-web:
+    environment:
+      - NODE_ENV=development
+      - PORT=9999
+      - NEXT_PUBLIC_RELAY_ENDPOINT=http://tally-graphql:8888/v1/graphql
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+    - tally-graphql
+    # Volumes only for dev, since itll be compiled for prod
+    volumes:
+      - ./tally-web/:/webroot/default
+    build: ./tally-web
+    command: yarn dev
 
   # Proxy server
   caddy:
@@ -59,7 +60,7 @@ services:
     depends_on:
     - postgres
     - tally-graphql
-    # - tally-web
+    - tally-web
     restart: always
     ports:
     - 8080:8080
