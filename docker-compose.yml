@@ -51,6 +51,7 @@ services:
     # Volumes only for dev, since itll be compiled for prod
     volumes:
       - ./tally-web/:/webroot/default
+      - /webroot/default/node_modules
     build: ./tally-web
     command: yarn dev
 
