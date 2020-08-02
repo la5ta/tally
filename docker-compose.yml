@@ -14,10 +14,15 @@ services:
     # logging:
     #     driver: none
   tally-graphql:
-    image: hasura/graphql-engine:v1.3.0-beta.4.cli-migrations-v2
+    image: hasura/graphql-engine:v1.3.0
     depends_on:
     - postgres
     restart: always
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:15672']
+      interval: 30s
+      timeout: 10s
+      retries: 5
     environment:
       HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/postgres
       HASURA_GRAPHQL_ENABLE_CONSOLE: 'true' # set to 'false' to disable console
@@ -35,6 +40,7 @@ services:
     - serve
     ports:
       - 8888:8888
+      - 15672:15672
     ## disable logging
     # logging:
     #   driver: none
